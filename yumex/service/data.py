@@ -48,7 +48,6 @@ class Config:
     show_icon: bool
     update_sync_interval: int
     send_notification: bool
-    dark_icon: bool
 
     @classmethod
     def from_gsettings(cls):
@@ -58,20 +57,17 @@ class Config:
         show_icon = settings.get_boolean("upd-show-icon")
         update_interval = settings.get_int("upd-interval")
         notification = settings.get_boolean("upd-notification")
-        dark_icon = settings.get_boolean("upd-dark-icon")
         logger.debug(f"CONFIG: custom_updater        = {custom_updater}")
         logger.debug(f"CONFIG: show_icon             = {show_icon}")
         logger.debug(f"CONFIG: update_sync_interval  = {update_interval}")
         logger.debug(f"CONFIG: send_notification     = {notification}")
-        logger.debug(f"CONFIG: dark_icon             = {dark_icon}")
-        return cls(custom_updater, show_icon, update_interval, notification, dark_icon)
+        return cls(custom_updater, show_icon, update_interval, notification)
 
 
 class Indicator:
-    def __init__(self, custom_updater, refresh_func, dark_icon):
+    def __init__(self, custom_updater, refresh_func):
         self._indicator = None
         self.custom_updater = custom_updater
-        self.dark_icon = dark_icon
         self.refresh_func = refresh_func
         self.last_pkgs = 0
         self.last_flatpaks = 0
@@ -88,14 +84,9 @@ class Indicator:
 
     def _factory(self):
         try:
-            if self.dark_icon:
-                logger.debug("Using dark icon")
-                icon_name = "yumex-update-dark-symbolic.svg"
-            else:
-                icon_name = "yumex-update-symbolic.svg"
             indicator = AppIndicator3.Indicator.new(
                 "System Update Monitor",
-                f"/usr/share/icons/hicolor/scalable/apps/{icon_name}",
+                "system-software-update-symbolic",
                 AppIndicator3.IndicatorCategory.APPLICATION_STATUS,
             )
             indicator.set_status(AppIndicator3.IndicatorStatus.ACTIVE)
